@@ -49,7 +49,7 @@ export default async function handler(request: ApiRequest, response: ApiResponse
 
   try {
     const body = await readJsonRequestBody<MatchPrepareRequest>(request)
-    const { prepareMatchStateServer } = await import('../_server/matchApi.ts')
+    const { prepareMatchStateServer } = await import('../_server/matchApi.js')
     const payload = await prepareMatchStateServer(body)
     response.status(200).json(payload)
   } catch (error) {

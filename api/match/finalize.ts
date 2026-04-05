@@ -48,7 +48,7 @@ export default async function handler(request: ApiRequest, response: ApiResponse
 
   try {
     const body = await readJsonRequestBody<MatchFinalizeRequest>(request)
-    const { finalizeMatchServer } = await import('../_server/matchApi.ts')
+    const { finalizeMatchServer } = await import('../_server/matchApi.js')
     const payload = await finalizeMatchServer(body)
     response.status(200).json(payload)
   } catch (error) {
