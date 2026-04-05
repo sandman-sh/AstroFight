@@ -2,7 +2,7 @@ import {
   finalizeMatchServer,
   toHttpError,
   type MatchFinalizeRequest,
-} from '../../server/matchApi'
+} from '../_server/matchApi'
 import { readJsonRequestBody } from '../_utils'
 
 type ApiRequest = {

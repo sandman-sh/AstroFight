@@ -2,7 +2,7 @@ import {
   prepareMatchStateServer,
   toHttpError,
   type MatchPrepareRequest,
-} from '../../server/matchApi'
+} from '../_server/matchApi'
 import { readJsonRequestBody } from '../_utils'
 
 type ApiRequest = {
