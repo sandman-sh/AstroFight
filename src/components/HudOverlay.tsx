@@ -50,7 +50,12 @@ function PilotHud({
   align?: 'left' | 'right'
 }) {
   return (
-    <div className={cn('rounded-[22px] border border-white/10 bg-slate-950/58 px-4 py-4 backdrop-blur-xl', align === 'right' && 'text-right')}>
+    <div
+      className={cn(
+        'w-[min(32vw,15rem)] rounded-[20px] border border-white/10 bg-slate-950/58 px-3 py-3 backdrop-blur-xl md:px-4 md:py-4',
+        align === 'right' && 'text-right',
+      )}
+    >
       <div className="hud-label mb-2">Pilot</div>
       <div className="display-text fluid-display-sm text-white">{title}</div>
       <div className="mt-4 space-y-3">
@@ -83,39 +88,40 @@ export function HudOverlay() {
           accentClass="rgba(96,165,250,0.95)"
         />
 
-        <div className="rounded-[22px] border border-white/10 bg-slate-950/58 px-5 py-4 text-center backdrop-blur-xl">
-          <div className="hud-label mb-2 flex items-center justify-center gap-2">
-            <TimerReset className="h-3.5 w-3.5" />
-            Match
+        <div className="flex w-[min(35vw,16rem)] flex-col gap-3">
+          <div className="rounded-[20px] border border-white/10 bg-slate-950/58 px-4 py-3 text-right backdrop-blur-xl">
+            <div className="hud-label mb-2 flex items-center justify-end gap-2">
+              <TimerReset className="h-3.5 w-3.5" />
+              Match
+            </div>
+            <div className="display-text fluid-display-md text-white">
+              {stage === 'countdown' ? countdownValue : timerLeft.toFixed(0).padStart(2, '0')}
+            </div>
+            <div className="mt-2 tech-text text-slate-300/68">
+              Prize Pool {formatSol(prizePool)}
+            </div>
           </div>
-          <div className="display-text fluid-display-md text-white">
-            {stage === 'countdown' ? countdownValue : timerLeft.toFixed(0).padStart(2, '0')}
-          </div>
-          <div className="mt-2 tech-text text-slate-300/68">
-            Prize Pool {formatSol(prizePool)}
-          </div>
+          <PilotHud
+            title={remotePilot.label}
+            hp={remotePilot.health}
+            shieldValue={remotePilot.shield}
+            accentClass="rgba(167,139,250,0.95)"
+            align="right"
+          />
         </div>
-
-        <PilotHud
-          title={remotePilot.label}
-          hp={remotePilot.health}
-          shieldValue={remotePilot.shield}
-          accentClass="rgba(167,139,250,0.95)"
-          align="right"
-        />
       </div>
 
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 flex justify-center px-4 pb-4 md:pb-6">
-        <div className="grid w-full max-w-3xl gap-3 md:grid-cols-3">
-          <div className="rounded-[20px] border border-white/10 bg-slate-950/58 px-4 py-4 backdrop-blur-xl">
-            <div className="mb-3 flex items-center gap-2">
-              <Zap className="h-4 w-4 text-cyan-300" />
-              <span className="hud-label">Boost</span>
-            </div>
-            <Meter label="Reserve" value={localPilot.boost} accent="rgba(96,165,250,0.95)" />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 flex items-end justify-between gap-4 px-3 pb-4 md:px-6 md:pb-6">
+        <div className="w-[min(28vw,13rem)] rounded-[18px] border border-white/10 bg-slate-950/58 px-3 py-3 backdrop-blur-xl">
+          <div className="mb-3 flex items-center gap-2">
+            <Zap className="h-4 w-4 text-cyan-300" />
+            <span className="hud-label">Boost</span>
           </div>
+          <Meter label="Reserve" value={localPilot.boost} accent="rgba(96,165,250,0.95)" />
+        </div>
 
-          <div className="rounded-[20px] border border-white/10 bg-slate-950/58 px-4 py-4 backdrop-blur-xl">
+        <div className="flex w-[min(32vw,15rem)] flex-col gap-3">
+          <div className="rounded-[18px] border border-white/10 bg-slate-950/58 px-3 py-3 backdrop-blur-xl">
             <div className="mb-3 flex items-center gap-2">
               <Gauge className="h-4 w-4 text-violet-300" />
               <span className="hud-label">Laser</span>
@@ -123,16 +129,16 @@ export function HudOverlay() {
             <Meter label="Recharge" value={cooldownReady} accent="rgba(167,139,250,0.95)" />
           </div>
 
-          <div className="rounded-[20px] border border-white/10 bg-slate-950/58 px-4 py-4 backdrop-blur-xl">
-            <div className="mb-3 flex items-center gap-2">
+          <div className="rounded-[18px] border border-white/10 bg-slate-950/58 px-3 py-3 backdrop-blur-xl">
+            <div className="mb-2 flex items-center gap-2">
               <Shield className="h-4 w-4 text-white/80" />
               <span className="hud-label">Status</span>
             </div>
-            <div className="display-text fluid-display-sm text-white">
+            <div className="display-text fluid-display-xs text-white">
               {stage === 'countdown' ? 'Launch' : 'Engaged'}
             </div>
-            <div className="mt-2 tech-text text-slate-300/68">
-              Keep the enemy in front, strafe wide, dodge laser lines, and punish on cooldown.
+            <div className="mt-1 tech-text text-[0.74rem] leading-5 text-slate-300/68">
+              Hold angle and fire on cooldown.
             </div>
           </div>
         </div>
