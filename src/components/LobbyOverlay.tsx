@@ -373,7 +373,10 @@ export function LobbyOverlay({
                       <button
                         onClick={onStartMatch}
                         disabled={!bothReady || !isHost || startPending}
-                        className="action-button w-full"
+                        className={cn(
+                          'action-button w-full',
+                          bothReady && isHost && 'action-button-launch',
+                        )}
                       >
                         {startPending
                           ? 'Starting Duel'

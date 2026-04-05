@@ -26,13 +26,43 @@ function mapReason(reason: EndReason) {
 }
 
 async function parseResponse<T>(response: Response): Promise<T> {
-  const payload = (await response.json()) as { error?: string }
+  const rawBody = await response.text()
+  const contentType = response.headers.get('content-type') ?? ''
+  let payload: { error?: string } | null = null
 
-  if (!response.ok) {
-    throw new Error(payload.error ?? 'Match service request failed.')
+  if (rawBody && contentType.includes('application/json')) {
+    try {
+      payload = JSON.parse(rawBody) as { error?: string }
+    } catch {
+      payload = null
+    }
   }
 
-  return payload as T
+  if (!response.ok) {
+    const plainText = rawBody
+      .replace(/<[^>]+>/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim()
+    throw new Error(
+      payload?.error ??
+        (plainText ||
+          `Match service request failed with status ${response.status}.`)
+    )
+  }
+
+  if (payload) {
+    return payload as T
+  }
+
+  if (!rawBody) {
+    throw new Error('Match service returned an empty response.')
+  }
+
+  try {
+    return JSON.parse(rawBody) as T
+  } catch {
+    throw new Error('Match service returned a non-JSON success payload.')
+  }
 }
 
 export async function prepareMatchState(options: MatchPrepareOptions) {
