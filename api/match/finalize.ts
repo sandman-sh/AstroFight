@@ -2,8 +2,8 @@ import {
   finalizeMatchServer,
   toHttpError,
   type MatchFinalizeRequest,
-} from '../_server/matchApi'
-import { readJsonRequestBody } from '../_utils'
+} from '../_server/matchApi.ts'
+import { readJsonRequestBody } from '../_utils.ts'
 
 type ApiRequest = {
   method?: string

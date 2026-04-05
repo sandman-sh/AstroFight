@@ -6,7 +6,7 @@ import {
   toHttpError,
   type MatchFinalizeRequest,
   type MatchPrepareRequest,
-} from '../api/_server/matchApi'
+} from '../api/_server/matchApi.ts'
 
 async function readJsonBody(request: IncomingMessage) {
   const chunks: Uint8Array[] = []

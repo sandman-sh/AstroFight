@@ -1,4 +1,4 @@
-import { joinRoom, type ActionSender, type Room } from 'trystero/torrent'
+import { joinRoom, type ActionSender, type Room } from 'trystero'
 import type { PilotId } from '../game/types'
 import type { MatchTransport, TransportEvent, TransportStatus } from './types'
 
@@ -19,7 +19,14 @@ export function createWebrtcTransport(): MatchTransport {
       onEvent = handleEvent
 
       try {
-        room = joinRoom({ appId: 'astrofightxyz' }, roomCode)
+        room = joinRoom(
+          { appId: 'astrofightxyz' },
+          roomCode,
+          (error) => {
+            console.error('AstroFight peer transport failed to join room.', error)
+            status = 'disconnected'
+          },
+        )
         const [send, getMessage] = room.makeAction<string>('game-event')
         sendAction = send
 
