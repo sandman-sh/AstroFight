@@ -8,7 +8,11 @@ import type { PilotId } from './game/types'
 import { probeMagicBlock } from './network/magicblock'
 import type { MatchTransport, TransportEvent } from './network/types'
 import { createWebrtcTransport } from './network/webrtcTransport'
-import { getEscrowStatus, requestStakeApproval } from './solana/escrow'
+import {
+  fetchEscrowAccountState,
+  getEscrowStatus,
+  requestStakeApproval,
+} from './solana/escrow'
 import { finalizeMatch, prepareMatchState } from './solana/matchService'
 
 function syncPilotPresence(
@@ -39,6 +43,7 @@ export default function App() {
   const transportRef = useRef<MatchTransport | null>(null)
   const inviteResetTimeoutRef = useRef<number | null>(null)
   const pendingInviteRoomRef = useRef<string | null>(null)
+  const pendingInviteCreatorWalletRef = useRef<string | null>(null)
   const settlementAttemptRef = useRef<string | null>(null)
   const matchPrepareAttemptRef = useRef<string | null>(null)
 
@@ -54,6 +59,7 @@ export default function App() {
   const stage = useGameStore((state) => state.stage)
   const winnerId = useGameStore((state) => state.result.winnerId)
   const endReason = useGameStore((state) => state.result.reason)
+  const hostWallet = useGameStore((state) => state.pilots.blue.wallet)
 
   const walletAddress = useMemo(
     () => publicKey?.toBase58() ?? null,
@@ -72,8 +78,11 @@ export default function App() {
 
     const url = new URL(window.location.href)
     url.searchParams.set('room', roomCode)
+    if (hostWallet) {
+      url.searchParams.set('host', hostWallet)
+    }
     return url.toString()
-  }, [mode, roomCode])
+  }, [hostWallet, mode, roomCode])
 
   const showInviteFeedback = useCallback((message: string) => {
     setInviteFeedback(message)
@@ -131,7 +140,7 @@ export default function App() {
 
   const handleStartMatch = useCallback(
     async (transportOverride?: MatchTransport | null) => {
-      const state = useGameStore.getState()
+      let state = useGameStore.getState()
 
       if (
         state.mode !== 'broadcast' ||
@@ -141,6 +150,36 @@ export default function App() {
         !state.pilots.blue.isLocal
       ) {
         return
+      }
+
+      const creatorCandidate = state.pilots.blue.wallet
+
+      if (creatorCandidate) {
+        try {
+          const escrowState = await fetchEscrowAccountState(
+            connection,
+            creatorCandidate,
+            state.roomCode,
+          )
+
+          if (escrowState) {
+            syncPilotPresence('blue', true, escrowState.creator)
+            if (!state.pilots.blue.stakeConfirmed) {
+              useGameStore.getState().confirmStake('blue')
+            }
+
+            if (escrowState.opponent) {
+              syncPilotPresence('violet', true, escrowState.opponent)
+              if (!state.pilots.violet.stakeConfirmed) {
+                useGameStore.getState().confirmStake('violet')
+              }
+            }
+
+            state = useGameStore.getState()
+          }
+        } catch (error) {
+          console.error('Failed to refresh escrow state before launch.', error)
+        }
       }
 
       if (!state.pilots.blue.stakeConfirmed || !state.pilots.violet.stakeConfirmed) {
@@ -197,7 +236,7 @@ export default function App() {
         setStartPending(false)
       }
     },
-    [],
+    [connection],
   )
 
   const handleTransportEvent = useCallback(
@@ -306,7 +345,7 @@ export default function App() {
   )
 
   const setupRealtimeMatch = useCallback(
-      (nextPilotId: PilotId, nextRoomCode: string) => {
+      (nextPilotId: PilotId, nextRoomCode: string, knownCreatorWallet?: string | null) => {
         clearTransport()
         settlementAttemptRef.current = null
         matchPrepareAttemptRef.current = null
@@ -323,6 +362,10 @@ export default function App() {
         localLabel: resolvedPilotName,
       })
       useGameStore.getState().setTransportStatus(transport.status)
+
+      if (nextPilotId === 'violet' && knownCreatorWallet) {
+        useGameStore.getState().setWallet('blue', knownCreatorWallet)
+      }
 
       setRoomInput(nextRoomCode)
       syncBrowserRoomParam(nextRoomCode)
@@ -443,6 +486,7 @@ export default function App() {
     settlementAttemptRef.current = null
     matchPrepareAttemptRef.current = null
     pendingInviteRoomRef.current = null
+    pendingInviteCreatorWalletRef.current = null
     syncBrowserRoomParam(null)
     setRoomInput('')
     setStakePending(false)
@@ -668,11 +712,15 @@ export default function App() {
     const inviteRoom = window.location.search
       ? new URLSearchParams(window.location.search).get('room')
       : null
+    const inviteCreatorWallet = window.location.search
+      ? new URLSearchParams(window.location.search).get('host')
+      : null
 
     if (!inviteRoom) return
 
     const normalizedRoom = inviteRoom.trim().toUpperCase()
     pendingInviteRoomRef.current = normalizedRoom
+    pendingInviteCreatorWalletRef.current = inviteCreatorWallet?.trim() || null
     setRoomInput(normalizedRoom)
     showInviteFeedback(`Invite room ${normalizedRoom} loaded.`)
   }, [showInviteFeedback])
@@ -685,9 +733,61 @@ export default function App() {
     }
 
     pendingInviteRoomRef.current = null
-    setupRealtimeMatch('violet', inviteRoom)
+    setupRealtimeMatch('violet', inviteRoom, pendingInviteCreatorWalletRef.current)
     showInviteFeedback(`Joined invite room ${inviteRoom}.`)
   }, [setupRealtimeMatch, showInviteFeedback, walletConnected])
+
+  useEffect(() => {
+    if (mode !== 'broadcast' || !roomCode) {
+      return
+    }
+
+    const syncFromEscrow = async () => {
+      const state = useGameStore.getState()
+      const creatorWallet =
+        state.pilots.blue.wallet ??
+        (state.localPilotId === 'blue' ? walletAddress : pendingInviteCreatorWalletRef.current)
+
+      if (!creatorWallet) {
+        return
+      }
+
+      try {
+        const escrowState = await fetchEscrowAccountState(
+          connection,
+          creatorWallet,
+          roomCode,
+        )
+
+        if (!escrowState) {
+          return
+        }
+
+        syncPilotPresence('blue', true, escrowState.creator)
+        if (!useGameStore.getState().pilots.blue.stakeConfirmed) {
+          useGameStore.getState().confirmStake('blue')
+        }
+
+        if (escrowState.opponent) {
+          syncPilotPresence('violet', true, escrowState.opponent)
+          if (!useGameStore.getState().pilots.violet.stakeConfirmed) {
+            useGameStore.getState().confirmStake('violet')
+          }
+        }
+      } catch (error) {
+        console.error('Failed to sync escrow state from chain.', error)
+      }
+    }
+
+    void syncFromEscrow()
+    const interval = window.setInterval(() => {
+      void syncFromEscrow()
+    }, 2500)
+
+    return () => {
+      window.clearInterval(interval)
+    }
+  }, [connection, mode, roomCode, walletAddress])
 
   useEffect(() => {
     return () => {

@@ -14,6 +14,7 @@ import env from '../config/env'
 const ROOM_SEED_PREFIX = 'match'
 const INITIALIZE_MATCH_DISCRIMINATOR = Uint8Array.from([156, 133, 52, 179, 176, 29, 64, 124])
 const JOIN_MATCH_DISCRIMINATOR = Uint8Array.from([244, 8, 47, 130, 192, 59, 179, 44])
+const DEFAULT_PUBKEY_STRING = new PublicKey(new Uint8Array(32)).toBase58()
 
 export interface EscrowStatus {
   liveEscrowReady: boolean
@@ -39,6 +40,17 @@ export interface StakeApprovalResult {
   escrowAddress: string
   creatorWallet: string
   role: 'creator' | 'opponent'
+}
+
+export interface MatchEscrowAccountState {
+  escrowAddress: string
+  creator: string
+  opponent: string | null
+  winner: string | null
+  arbiter: string
+  roomCode: string
+  stakeLamports: number
+  status: number
 }
 
 function requireEscrowProgramId() {
@@ -195,6 +207,76 @@ export function getEscrowStatus(): EscrowStatus {
     programId: env.escrowProgramId || null,
     arbiter: arbiterPublicKey?.toBase58() ?? null,
     note: 'Escrow is not configured. Set VITE_ESCROW_PROGRAM_ID and VITE_MATCH_ARBITER for real devnet staking.',
+  }
+}
+
+function decodePubkey(data: Buffer, offset: number) {
+  return {
+    value: new PublicKey(data.subarray(offset, offset + 32)).toBase58(),
+    offset: offset + 32,
+  }
+}
+
+function decodeString(data: Buffer, offset: number) {
+  const length = data.readUInt32LE(offset)
+  const start = offset + 4
+  const end = start + length
+
+  return {
+    value: Buffer.from(data.subarray(start, end)).toString('utf8'),
+    offset: end,
+  }
+}
+
+function decodeU64(data: Buffer, offset: number) {
+  return {
+    value: Number(data.readBigUInt64LE(offset)),
+    offset: offset + 8,
+  }
+}
+
+function maybePubkey(value: string) {
+  return value === DEFAULT_PUBKEY_STRING ? null : value
+}
+
+export async function fetchEscrowAccountState(
+  connection: Connection,
+  creatorWallet: string,
+  roomCode: string,
+): Promise<MatchEscrowAccountState | null> {
+  const escrowAddress = deriveMatchEscrowAddress(creatorWallet, roomCode)
+  const accountInfo = await connection.getAccountInfo(escrowAddress, 'confirmed')
+
+  if (!accountInfo) {
+    return null
+  }
+
+  const data = Buffer.from(accountInfo.data)
+  let offset = 8
+
+  const creator = decodePubkey(data, offset)
+  offset = creator.offset
+  const opponent = decodePubkey(data, offset)
+  offset = opponent.offset
+  const winner = decodePubkey(data, offset)
+  offset = winner.offset
+  const arbiter = decodePubkey(data, offset)
+  offset = arbiter.offset
+  const decodedRoomCode = decodeString(data, offset)
+  offset = decodedRoomCode.offset
+  const stakeLamports = decodeU64(data, offset)
+  offset = stakeLamports.offset
+  const status = data.readUInt8(offset)
+
+  return {
+    escrowAddress: escrowAddress.toBase58(),
+    creator: creator.value,
+    opponent: maybePubkey(opponent.value),
+    winner: maybePubkey(winner.value),
+    arbiter: arbiter.value,
+    roomCode: decodedRoomCode.value,
+    stakeLamports: stakeLamports.value,
+    status,
   }
 }
 
