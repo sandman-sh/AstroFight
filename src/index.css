@@ -4,6 +4,13 @@
 
 :root {
   font-family: Manrope, system-ui, sans-serif;
+  --fluid-step--1: clamp(0.72rem, 0.68rem + 0.2vw, 0.84rem);
+  --fluid-step-0: clamp(0.84rem, 0.78rem + 0.28vw, 1rem);
+  --fluid-step-1: clamp(1rem, 0.92rem + 0.38vw, 1.16rem);
+  --fluid-step-2: clamp(1.18rem, 1.04rem + 0.64vw, 1.48rem);
+  --fluid-step-3: clamp(1.46rem, 1.2rem + 1vw, 2rem);
+  --fluid-step-4: clamp(1.9rem, 1.46rem + 1.7vw, 2.9rem);
+  --fluid-step-5: clamp(2.3rem, 1.7rem + 2.4vw, 4rem);
   color: rgba(239, 244, 255, 0.96);
   background:
     radial-gradient(circle at top, rgba(74, 162, 255, 0.15), transparent 24%),
@@ -30,6 +37,7 @@ body {
   margin: 0;
   min-height: 100vh;
   overflow: hidden;
+  font-size: var(--fluid-step-0);
 }
 
 body::before,
@@ -95,7 +103,7 @@ input {
     linear-gradient(180deg, rgba(110, 211, 255, 0.96), rgba(106, 137, 255, 0.94));
   color: #04111d;
   font-family: 'Space Grotesk', sans-serif;
-  font-size: 0.74rem;
+  font-size: var(--fluid-step--1);
   font-weight: 700;
   letter-spacing: 0.22em;
   text-transform: uppercase;
@@ -161,7 +169,7 @@ input {
     linear-gradient(180deg, rgba(9, 17, 31, 0.92), rgba(7, 12, 23, 0.84));
   color: rgba(239, 244, 255, 0.94);
   font-family: 'Space Grotesk', sans-serif;
-  font-size: 0.72rem;
+  font-size: var(--fluid-step--1);
   letter-spacing: 0.18em;
   text-transform: uppercase;
   box-shadow:
@@ -212,6 +220,68 @@ input {
     0 0 24px rgba(103, 170, 255, 0.06);
 }
 
+.fluid-display-xs {
+  font-size: var(--fluid-step-1);
+  line-height: 1.12;
+}
+
+.fluid-display-sm {
+  font-size: var(--fluid-step-2);
+  line-height: 1.08;
+}
+
+.fluid-display-md {
+  font-size: var(--fluid-step-3);
+  line-height: 1.04;
+}
+
+.fluid-display-lg {
+  font-size: var(--fluid-step-4);
+  line-height: 1;
+}
+
+.fluid-display-xl {
+  font-size: var(--fluid-step-5);
+  line-height: 0.96;
+}
+
+.fluid-tech {
+  font-size: var(--fluid-step-0);
+}
+
+.launch-loader {
+  display: inline-flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 0.55rem;
+  height: 44px;
+}
+
+.launch-loader span {
+  width: 8px;
+  border-radius: 999px;
+  background:
+    linear-gradient(180deg, rgba(110, 211, 255, 0.98), rgba(88, 118, 255, 0.88));
+  box-shadow:
+    0 0 16px rgba(96, 165, 250, 0.28),
+    0 0 32px rgba(59, 130, 246, 0.16);
+  animation: launch-pulse 1s ease-in-out infinite;
+}
+
+.launch-loader span:nth-child(1) {
+  height: 18px;
+}
+
+.launch-loader span:nth-child(2) {
+  height: 30px;
+  animation-delay: 0.16s;
+}
+
+.launch-loader span:nth-child(3) {
+  height: 22px;
+  animation-delay: 0.32s;
+}
+
 .glass-panel,
 .sharp-panel {
   background:
@@ -253,7 +323,7 @@ input {
   background: transparent;
   color: #eef5ff;
   font-family: 'Space Grotesk', sans-serif;
-  font-size: 0.94rem;
+  font-size: var(--fluid-step-0);
 }
 
 .field-input::placeholder {
@@ -328,7 +398,7 @@ input {
   padding: 0 12px;
   background: rgba(255, 255, 255, 0.03);
   font-family: 'Space Grotesk', sans-serif;
-  font-size: 0.75rem;
+  font-size: var(--fluid-step--1);
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: rgba(226, 232, 240, 0.74);
@@ -348,17 +418,20 @@ input {
 .hud-label {
   letter-spacing: 0.28em;
   text-transform: uppercase;
-  font-size: 0.65rem;
+  font-size: clamp(0.58rem, 0.52rem + 0.18vw, 0.72rem);
   color: rgba(208, 225, 255, 0.56);
   font-family: 'Space Grotesk', sans-serif;
 }
 
 .tech-text {
   font-family: 'Space Grotesk', sans-serif;
+  font-size: var(--fluid-step-0);
 }
 
 .display-text {
   font-family: 'Orbitron', 'Space Grotesk', sans-serif;
+  line-height: 1.04;
+  text-wrap: balance;
 }
 
 .cockpit-grid {
@@ -385,5 +458,18 @@ input {
 
   .display-text {
     letter-spacing: 0.04em;
+  }
+}
+
+@keyframes launch-pulse {
+  0%,
+  100% {
+    transform: scaleY(0.78);
+    opacity: 0.5;
+  }
+
+  50% {
+    transform: scaleY(1.14);
+    opacity: 1;
   }
 }

@@ -20,7 +20,7 @@ function Meter({
     <div>
       <div className="mb-2 flex items-center justify-between">
         <span className="hud-label">{label}</span>
-        <span className="display-text text-sm text-white">{Math.max(0, Math.round(value))}</span>
+        <span className="display-text fluid-display-xs text-white">{Math.max(0, Math.round(value))}</span>
       </div>
       <div className="h-2 overflow-hidden rounded-full bg-white/10">
         <div
@@ -52,7 +52,7 @@ function PilotHud({
   return (
     <div className={cn('rounded-[22px] border border-white/10 bg-slate-950/58 px-4 py-4 backdrop-blur-xl', align === 'right' && 'text-right')}>
       <div className="hud-label mb-2">Pilot</div>
-      <div className="display-text text-lg text-white">{title}</div>
+      <div className="display-text fluid-display-sm text-white">{title}</div>
       <div className="mt-4 space-y-3">
         <Meter label="Hull" value={hp} accent={accentClass} />
         <Meter label="Shield" value={shieldValue} max={35} accent="rgba(255,255,255,0.7)" />
@@ -88,10 +88,10 @@ export function HudOverlay() {
             <TimerReset className="h-3.5 w-3.5" />
             Match
           </div>
-          <div className="display-text text-3xl text-white md:text-4xl">
+          <div className="display-text fluid-display-md text-white">
             {stage === 'countdown' ? countdownValue : timerLeft.toFixed(0).padStart(2, '0')}
           </div>
-          <div className="mt-2 tech-text text-xs text-slate-300/68">
+          <div className="mt-2 tech-text text-slate-300/68">
             Prize Pool {formatSol(prizePool)}
           </div>
         </div>
@@ -128,10 +128,10 @@ export function HudOverlay() {
               <Shield className="h-4 w-4 text-white/80" />
               <span className="hud-label">Status</span>
             </div>
-            <div className="display-text text-lg text-white">
+            <div className="display-text fluid-display-sm text-white">
               {stage === 'countdown' ? 'Launch' : 'Engaged'}
             </div>
-            <div className="mt-2 tech-text text-xs text-slate-300/68">
+            <div className="mt-2 tech-text text-slate-300/68">
               Keep the enemy in front, strafe wide, dodge laser lines, and punish on cooldown.
             </div>
           </div>

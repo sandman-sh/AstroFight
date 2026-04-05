@@ -179,6 +179,7 @@ export function LobbyOverlay({
   walletConnected,
 }: LobbyOverlayProps) {
   const stage = useGameStore((state) => state.stage)
+  const countdownValue = useGameStore((state) => state.countdownValue)
   const mode = useGameStore((state) => state.mode)
   const roomCode = useGameStore((state) => state.roomCode)
   const stakeSol = useGameStore((state) => state.stakeSol)
@@ -219,10 +220,10 @@ export function LobbyOverlay({
           {showConnectGate ? (
             <div className="mx-auto max-w-[540px] rounded-[16px] border border-white/10 bg-black/20 p-6 text-center sm:p-8">
               <div className="hud-label mb-3">Access</div>
-              <h1 className="display-text text-4xl leading-none text-white sm:text-5xl">
+              <h1 className="display-text fluid-display-xl text-white">
                 Connect wallet
               </h1>
-              <p className="mx-auto mt-4 max-w-md tech-text text-sm leading-7 text-slate-300/72 sm:text-base">
+              <p className="mx-auto mt-4 max-w-md tech-text fluid-tech leading-7 text-slate-300/72">
                 Link Phantom, set your pilot name, and queue directly into the duel deck.
               </p>
               <div className="mt-6 flex justify-center">
@@ -297,7 +298,7 @@ export function LobbyOverlay({
 
               <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
                 <SectionCard title="Pilot" icon={<User className="h-4 w-4" />}>
-                  <div className="display-text text-2xl text-white">
+                  <div className="display-text fluid-display-sm text-white">
                     {trimmedName || localPilot.label}
                   </div>
                   <div className="mt-2 tech-text text-sm text-slate-300/68">
@@ -390,7 +391,7 @@ export function LobbyOverlay({
                   ) : (
                     <div className="status-action-surface text-center">
                       <div className="hud-label mb-2">State</div>
-                      <div className="display-text text-2xl text-white">
+                      <div className="display-text fluid-display-sm text-white">
                         {stage === 'countdown' ? 'Launching' : 'Arming'}
                       </div>
                     </div>
@@ -428,7 +429,39 @@ export function LobbyOverlay({
               </SectionCard>
 
               <div className="grid gap-4">
-                <div className="grid gap-4 lg:grid-cols-2">
+                {startPending || stage === 'countdown' ? (
+                  <div className="sharp-panel flex min-h-[320px] flex-col items-center justify-center px-6 py-8 text-center sm:px-10">
+                    <div className="launch-loader mb-5" aria-hidden="true">
+                      <span />
+                      <span />
+                      <span />
+                    </div>
+                    <div className="hud-label mb-3">
+                      {startPending ? 'Loading Match' : 'Launch Sequence'}
+                    </div>
+                    <div className="display-text fluid-display-lg text-white">
+                      {startPending ? 'Initializing Arena' : 'Duel Starting'}
+                    </div>
+                    <p className="mt-4 max-w-2xl tech-text fluid-tech leading-7 text-slate-300/74">
+                      {startPending
+                        ? 'Syncing match-state, validating stakes, and loading the combat sector. Hold position while the arena comes online.'
+                        : `Launch corridor is clear. Final systems check complete. Battle begins in ${Math.max(1, countdownValue)}.`}
+                    </p>
+                    <div className="mt-6 grid w-full max-w-2xl gap-3 sm:grid-cols-3">
+                      <div className="status-chip justify-center">Escrow Locked</div>
+                      <div className="status-chip justify-center">
+                        {startPending ? 'State Syncing' : 'Weapons Hot'}
+                      </div>
+                      <div className="status-chip justify-center">
+                        {startPending ? 'Arena Loading' : `T-${Math.max(1, countdownValue)}`}
+                      </div>
+                    </div>
+                  </div>
+                ) : null}
+
+                {!startPending && stage !== 'countdown' ? (
+                  <>
+                    <div className="grid gap-4 lg:grid-cols-2">
                   <PilotCard
                     title="You"
                     label={localPilot.label}
@@ -476,17 +509,17 @@ export function LobbyOverlay({
                   </SectionCard>
 
                   <SectionCard title="Status Feed" icon={<Wallet className="h-4 w-4" />}>
-                    <div className="space-y-2">
+                    <div className="min-w-0 space-y-2">
                       {inviteLink && !isBotMatch ? (
-                        <div className="status-chip tech-text truncate text-left normal-case tracking-normal text-slate-300/74">
+                        <div className="status-chip min-w-0 whitespace-normal break-all text-left normal-case tracking-normal text-slate-300/74">
                           {inviteLink}
                         </div>
                       ) : null}
-                      <div className="status-chip tech-text text-left normal-case tracking-normal text-slate-300/74">
+                      <div className="status-chip min-w-0 whitespace-normal break-words text-left normal-case tracking-normal text-slate-300/74">
                         {magicblockLabel}
                       </div>
                       {bothReady && !isBotMatch ? (
-                        <div className="rounded-[10px] border border-cyan-300/16 bg-cyan-300/[0.06] px-3 py-3 text-sm text-cyan-100/88">
+                        <div className="rounded-[10px] border border-cyan-300/16 bg-cyan-300/[0.06] px-3 py-3 text-sm text-cyan-100/88 break-words">
                           {isHost
                             ? 'Both stakes are locked. Launch the duel when ready.'
                             : 'Both stakes are locked. Waiting for the host to launch the duel.'}
@@ -495,7 +528,7 @@ export function LobbyOverlay({
                       {notes.slice(0, 3).map((note, index) => (
                         <div
                           key={`${note}-${index}`}
-                          className="rounded-[10px] border border-white/10 bg-black/20 px-3 py-3 text-sm text-slate-300/72"
+                          className="rounded-[10px] border border-white/10 bg-black/20 px-3 py-3 text-sm text-slate-300/72 break-words"
                         >
                           {note}
                         </div>
@@ -503,6 +536,8 @@ export function LobbyOverlay({
                     </div>
                   </SectionCard>
                 </div>
+                  </>
+                ) : null}
               </div>
             </div>
           ) : null}
@@ -510,10 +545,10 @@ export function LobbyOverlay({
           {isFinished ? (
             <div className="mx-auto max-w-[520px] rounded-[16px] border border-white/10 bg-black/20 p-6 text-center sm:p-8">
               <div className="hud-label mb-3">Result</div>
-              <div className="display-text text-4xl text-white sm:text-5xl">
+              <div className="display-text fluid-display-lg text-white">
                 {result.winnerId === localPilotId ? 'Victory' : 'Defeat'}
               </div>
-              <p className="mt-4 tech-text text-sm leading-7 text-slate-300/72 sm:text-base">
+              <p className="mt-4 tech-text fluid-tech leading-7 text-slate-300/72">
                 {result.winnerId === localPilotId
                   ? `Payout ${formatSol(prizePool)}`
                   : `${pilots[result.winnerId!].label} secured the duel.`}

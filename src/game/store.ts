@@ -245,7 +245,7 @@ export const useGameStore = create<RuntimeState & RuntimeActions>((set, get) => 
       countdownEndsAt: startsAt,
       countdownValue: Math.max(
         1,
-        Math.ceil((startsAt - performance.now()) / 1000),
+        Math.ceil((startsAt - Date.now()) / 1000),
       ),
       notes: ['Countdown initiated. Engines are warming up.'],
     }),

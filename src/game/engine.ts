@@ -249,7 +249,7 @@ export function receiveRemoteProjectile(projectile: ProjectileState) {
 }
 
 export function triggerCountdown(transport?: MatchTransport | null) {
-  const startsAt = performance.now() + 3200
+  const startsAt = Date.now() + 3200
   useGameStore.getState().startCountdown(startsAt)
   transport?.send({ type: 'countdown', startsAt })
 }
@@ -274,9 +274,10 @@ export function stepSimulation(
   const localPilot = pilots[localPilotId]
   const remotePilot = pilots[remotePilotId]
   const now = performance.now()
+  const nowEpoch = Date.now()
 
   if (stage === 'countdown' && countdownEndsAt) {
-    const secondsLeft = Math.max(0, countdownEndsAt - now)
+    const secondsLeft = Math.max(0, countdownEndsAt - nowEpoch)
     store.setTimerLeft(MATCH_DURATION_SECONDS)
     useGameStore.setState({
       countdownValue: Math.max(0, Math.ceil(secondsLeft / 1000)),

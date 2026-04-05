@@ -1,7 +1,9 @@
 import { useEffect, useRef } from 'react'
 import { useGameStore } from '../game/store'
 
-const BACKGROUND_MUSIC_VOLUME = 0.18
+const LOBBY_MUSIC_VOLUME = 0.14
+const ARENA_MUSIC_VOLUME = 0.16
+const FINISHED_MUSIC_VOLUME = 0.12
 const LASER_VOLUME = 0.42
 const EXPLOSION_VOLUME = 0.52
 
@@ -11,6 +13,35 @@ function createAudio(src: string, volume: number, loop = false) {
   audio.volume = volume
   audio.loop = loop
   return audio
+}
+
+function syncBackgroundMusic(options: {
+  backgroundMusic: HTMLAudioElement | null
+  unlocked: boolean
+  hidden: boolean
+  stage: 'lobby' | 'staking' | 'countdown' | 'battle' | 'finished'
+}) {
+  const { backgroundMusic, unlocked, hidden, stage } = options
+  if (!backgroundMusic || !unlocked) return
+
+  const targetVolume =
+    stage === 'countdown' || stage === 'battle'
+      ? ARENA_MUSIC_VOLUME
+      : stage === 'finished'
+        ? FINISHED_MUSIC_VOLUME
+        : LOBBY_MUSIC_VOLUME
+
+  backgroundMusic.volume = targetVolume
+
+  if (hidden) {
+    return
+  }
+
+  if (backgroundMusic.paused) {
+    void backgroundMusic.play().catch(() => {
+      // Ignore autoplay resume failures.
+    })
+  }
 }
 
 export function useGameAudio() {
@@ -33,12 +64,18 @@ export function useGameAudio() {
       if (!backgroundMusicRef.current) {
         backgroundMusicRef.current = createAudio(
           '/audio/bgmusic.mp3',
-          BACKGROUND_MUSIC_VOLUME,
+          LOBBY_MUSIC_VOLUME,
           true,
         )
       }
 
       const backgroundMusic = backgroundMusicRef.current
+      syncBackgroundMusic({
+        backgroundMusic,
+        unlocked: unlockedRef.current,
+        hidden: document.hidden,
+        stage: useGameStore.getState().stage,
+      })
 
       void backgroundMusic.play().catch(() => {
         unlockedRef.current = false
@@ -55,6 +92,12 @@ export function useGameAudio() {
       }
 
       if (unlockedRef.current) {
+        syncBackgroundMusic({
+          backgroundMusic,
+          unlocked: unlockedRef.current,
+          hidden: document.hidden,
+          stage: useGameStore.getState().stage,
+        })
         void backgroundMusic.play().catch(() => {
           // Ignore autoplay resume failures.
         })
@@ -77,6 +120,16 @@ export function useGameAudio() {
       unlockedRef.current = false
     }
   }, [])
+
+  useEffect(() => {
+    if (!unlockedRef.current) return
+    syncBackgroundMusic({
+      backgroundMusic: backgroundMusicRef.current,
+      unlocked: unlockedRef.current,
+      hidden: document.hidden,
+      stage,
+    })
+  }, [stage])
 
   useEffect(() => {
     if (!unlockedRef.current) {
