@@ -1,0 +1,364 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: Manrope, system-ui, sans-serif;
+  color: rgba(239, 244, 255, 0.96);
+  background:
+    radial-gradient(circle at top, rgba(74, 162, 255, 0.15), transparent 24%),
+    radial-gradient(circle at 80% 18%, rgba(136, 90, 255, 0.12), transparent 22%),
+    linear-gradient(180deg, #02040a 0%, #040814 42%, #02050d 100%);
+  color-scheme: dark;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+body::before,
+body::after {
+  content: '';
+  position: fixed;
+  inset: -12%;
+  pointer-events: none;
+}
+
+body::before {
+  background:
+    radial-gradient(circle at 20% 24%, rgba(96, 165, 250, 0.2), transparent 20%),
+    radial-gradient(circle at 78% 14%, rgba(167, 139, 250, 0.16), transparent 22%),
+    radial-gradient(circle at 50% 88%, rgba(59, 130, 246, 0.14), transparent 28%);
+  filter: blur(48px);
+  animation: drift 22s linear infinite alternate;
+}
+
+body::after {
+  background-image:
+    radial-gradient(rgba(255, 255, 255, 0.12) 0.8px, transparent 0.9px),
+    radial-gradient(rgba(96, 165, 250, 0.08) 0.7px, transparent 0.8px);
+  background-position:
+    0 0,
+    28px 36px;
+  background-size:
+    88px 88px,
+    120px 120px;
+  opacity: 0.16;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+.wallet-adapter-button-trigger {
+  width: 100%;
+  justify-content: center;
+  background:
+    linear-gradient(180deg, rgba(10, 17, 30, 0.92), rgba(7, 12, 23, 0.88)) !important;
+  border: 1px solid rgba(120, 198, 255, 0.18) !important;
+  border-radius: 10px !important;
+  color: #eef5ff !important;
+  font-family: 'Space Grotesk', sans-serif !important;
+  font-size: 12px !important;
+  letter-spacing: 0.18em !important;
+  text-transform: uppercase;
+  height: 46px !important;
+  padding-inline: 16px !important;
+  box-shadow:
+    0 12px 24px rgba(0, 0, 0, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+}
+
+.action-button {
+  min-height: 46px;
+  border: 1px solid rgba(150, 220, 255, 0.22);
+  border-radius: 10px;
+  padding: 0 18px;
+  background:
+    linear-gradient(180deg, rgba(110, 211, 255, 0.96), rgba(106, 137, 255, 0.94));
+  color: #04111d;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  box-shadow:
+    0 12px 22px rgba(62, 118, 255, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.26);
+  cursor: pointer;
+  transition:
+    transform 140ms ease,
+    box-shadow 140ms ease,
+    filter 140ms ease,
+    background 140ms ease;
+}
+
+.action-button:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+  box-shadow:
+    0 14px 28px rgba(74, 136, 255, 0.26),
+    inset 0 1px 0 rgba(255, 255, 255, 0.28);
+}
+
+.action-button:active {
+  transform: translateY(1px) scale(0.995);
+}
+
+.utility-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 42px;
+  gap: 0.6rem;
+  border: 1px solid rgba(154, 214, 255, 0.14);
+  border-radius: 10px;
+  padding: 0 14px;
+  background:
+    linear-gradient(180deg, rgba(9, 17, 31, 0.92), rgba(7, 12, 23, 0.84));
+  color: rgba(239, 244, 255, 0.94);
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  box-shadow:
+    0 10px 20px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+  transition:
+    transform 140ms ease,
+    border-color 140ms ease,
+    box-shadow 140ms ease,
+    filter 140ms ease;
+}
+
+.utility-button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(138, 216, 255, 0.3);
+  filter: brightness(1.02);
+}
+
+.utility-button:active {
+  transform: translateY(1px) scale(0.995);
+}
+
+.utility-button-primary {
+  border-color: rgba(168, 230, 255, 0.24);
+  background:
+    linear-gradient(180deg, rgba(66, 168, 255, 0.95), rgba(88, 118, 255, 0.95));
+  color: #04111f;
+  box-shadow:
+    0 12px 24px rgba(68, 130, 255, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.32);
+}
+
+.utility-button-primary:hover {
+  border-color: rgba(194, 239, 255, 0.34);
+  filter: brightness(1.05);
+}
+
+.status-action-surface {
+  border: 1px solid rgba(138, 216, 255, 0.16);
+  border-radius: 10px;
+  padding: 14px 16px;
+  background:
+    linear-gradient(180deg, rgba(13, 22, 38, 0.92), rgba(8, 14, 26, 0.84));
+  box-shadow:
+    0 12px 24px rgba(36, 102, 255, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 0 24px rgba(103, 170, 255, 0.06);
+}
+
+.glass-panel,
+.sharp-panel {
+  background:
+    linear-gradient(180deg, rgba(10, 16, 32, 0.86), rgba(5, 10, 21, 0.72));
+  border: 1px solid rgba(123, 200, 255, 0.1);
+  border-radius: 12px;
+  box-shadow:
+    0 18px 50px rgba(0, 0, 0, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 0 0 1px rgba(70, 123, 255, 0.04);
+  backdrop-filter: blur(18px);
+}
+
+.field-shell {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  min-height: 44px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 0 12px;
+  background: rgba(255, 255, 255, 0.03);
+  transition:
+    border-color 140ms ease,
+    background 140ms ease,
+    box-shadow 140ms ease;
+}
+
+.field-shell:focus-within {
+  border-color: rgba(130, 214, 255, 0.28);
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: 0 0 0 1px rgba(96, 165, 250, 0.08);
+}
+
+.field-input {
+  width: 100%;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: #eef5ff;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.94rem;
+}
+
+.field-input::placeholder {
+  color: rgba(226, 232, 240, 0.34);
+}
+
+.command-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8rem;
+  min-height: 50px;
+  padding: 0 14px;
+  border: 1px solid rgba(154, 214, 255, 0.12);
+  border-radius: 10px;
+  background:
+    linear-gradient(180deg, rgba(11, 18, 31, 0.94), rgba(7, 12, 22, 0.88));
+  box-shadow:
+    0 12px 22px rgba(0, 0, 0, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  cursor: pointer;
+  transition:
+    transform 130ms ease,
+    border-color 130ms ease,
+    background 130ms ease,
+    box-shadow 130ms ease;
+}
+
+.command-button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(118, 205, 255, 0.22);
+  background:
+    linear-gradient(180deg, rgba(13, 24, 42, 0.96), rgba(8, 15, 27, 0.9));
+  box-shadow:
+    0 14px 24px rgba(11, 25, 54, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.command-button:active {
+  transform: translateY(1px);
+}
+
+.command-button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.command-button-primary {
+  border-color: rgba(168, 230, 255, 0.2);
+  background:
+    linear-gradient(180deg, rgba(25, 56, 96, 0.98), rgba(10, 25, 52, 0.94));
+}
+
+.command-button__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid rgba(130, 214, 255, 0.14);
+  border-radius: 8px;
+  background: rgba(96, 165, 250, 0.08);
+  color: #b8e7ff;
+  flex-shrink: 0;
+}
+
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 0 12px;
+  background: rgba(255, 255, 255, 0.03);
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.75rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(226, 232, 240, 0.74);
+}
+
+.status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 40px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 0 12px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.hud-label {
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  font-size: 0.65rem;
+  color: rgba(208, 225, 255, 0.56);
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+.tech-text {
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+.display-text {
+  font-family: 'Orbitron', 'Space Grotesk', sans-serif;
+}
+
+.cockpit-grid {
+  background-image:
+    linear-gradient(rgba(103, 170, 255, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(103, 170, 255, 0.08) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+.touch-none {
+  touch-action: none;
+}
+
+@media (max-width: 640px) {
+  .wallet-adapter-button-trigger {
+    height: 44px !important;
+    font-size: 11px !important;
+  }
+
+  .action-button,
+  .command-button {
+    min-height: 44px;
+  }
+
+  .display-text {
+    letter-spacing: 0.04em;
+  }
+}

@@ -1,0 +1,21 @@
+[toolchain]
+package_manager = "npm"
+
+[features]
+resolution = true
+skip-lint = false
+
+[programs.localnet]
+astrofight_escrow = "36jNz1GXXBV4DoXHETExtqHCawyw3sE9JhUNsn57BxAh"
+astrofight_match_state = "7k4vyWB43PQNUU2RVFsP8czAqhgV1Fv7w4e31AitM3FF"
+
+[programs.devnet]
+astrofight_escrow = "36jNz1GXXBV4DoXHETExtqHCawyw3sE9JhUNsn57BxAh"
+astrofight_match_state = "7k4vyWB43PQNUU2RVFsP8czAqhgV1Fv7w4e31AitM3FF"
+
+[provider]
+cluster = "Devnet"
+wallet = "~/.config/solana/id.json"
+
+[scripts]
+test = "echo \"No Anchor tests configured for AstroFight yet.\""
